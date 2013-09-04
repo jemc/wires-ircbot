@@ -1,6 +1,6 @@
 require 'rake/testtask'
 
-gemname = 'wires-irc'
+gemname = 'wires-ircbot'
 
 # Run tests
 task :default => [:test]
