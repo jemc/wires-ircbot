@@ -4,6 +4,8 @@ require 'wires'
 require 'thread'
 require 'socket'
 
+require "#{File.dirname(__FILE__)}/ircbot/events"
+
 
 class IrcEvent < Wires::Event; end
 class IrcLineEvent < IrcEvent; end
@@ -27,7 +29,9 @@ class IrcBot
   end
 
   def method_missing(meth, *args)
-    @socket.puts("#{meth.to_s.upcase} #{args.join(' ')}")
+    @socket ?
+      @socket.puts("#{meth.to_s.upcase} #{args.join(' ')}") :
+      super
   end
   
 end
