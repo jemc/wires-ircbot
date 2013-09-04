@@ -23,7 +23,7 @@ class IrcBot
     nick @nick
     user @nick, 0, '*', (@realname or @nick)
     
-    while line = @socket.gets.strip
+    while line = @socket.gets.rstrip
       Channel(self).fire_and_wait [:irc_line,line:line]
     end
   end
