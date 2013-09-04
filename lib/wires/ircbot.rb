@@ -12,6 +12,7 @@ class IrcBot
   
   def initialize(**kwargs)
     kwargs.each_pair { |k,v| instance_variable_set("@#{k}",v) }
+    init_events
   end
   
   def connect!
