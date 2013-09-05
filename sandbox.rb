@@ -9,12 +9,19 @@ IRC::Bot.new do
   @server   = 'irc.freenode.net'
   @port     = 6667
   
+  @channels = ['#wires']
+  
   handle :message do |event|
-    p [event.prefix, event.command, event.args.join(" ")]
+    p [event.sender, event.command, event.args.join(" ")]
   end
   
   handle :end_of_motd do |event|
-    join '#wires'
+    @channels.each { |c| join c }
+  end
+  
+  handle :privmsg do |event|
+    p event.text
+    privmsg event.target, event.text
   end
   
 end.connect!

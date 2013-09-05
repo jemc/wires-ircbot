@@ -33,7 +33,7 @@ module IRC
   
   def_event :end_of_motd do |m|
     (m.command == '376') and \
-    new prefix: m.prefix,
+    new sender: m.sender,
         target: m.args[0],
         text:   m.args[1..-1].join(' ')[1..-1]
   end
@@ -44,30 +44,24 @@ module IRC
         target:(m.args[1] or m.args[0])
   end
   
-  
-  class Bot
-    def init_events
-      on :irc_message, self do |event|
-        IrcEvent.children
-          .map    { |c| c.from_message(event) }
-          .select { |x| x }
-          .each   { |e| Wires::Channel.new(self).fire_and_wait e }
-      end
-      
-      default_events
-    end
-    
-    def default_events
-      on :irc_ping, self do |e|
-        pong e.target
-      end
-    end
-    
-    def handle(event, &block)
-      Wires::Convenience.on ('irc_'+event.to_s), self, &block
-    end
-    
+  def_event :privmsg do |m|
+    (m.command == 'PRIVMSG') and \
+    new sender: m.sender,
+        target: m.args[0],
+        text:   m.args[1..-1].join(' ')[1..-1]
   end
   
+  
+  class Bot
+    def default_events
+      
+      handle :ping do |e|
+        pong e.target
+      end
+      
+      
+      
+    end
+  end
   
 end

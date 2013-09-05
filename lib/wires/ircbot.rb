@@ -5,7 +5,7 @@ require 'thread'
 require 'socket'
 
 require_relative "ircbot/events"
-
+require_relative "ircbot/overrides"
 
 module IRC
   class Bot
@@ -16,6 +16,24 @@ module IRC
       init_events
     end
     
+    
+    def handle(event, &block)
+      Wires::Convenience.on ('irc_'+event.to_s), self, &block
+    end
+    
+    
+    def init_events
+      handle :message do |event|
+        IrcEvent.children
+          .map    { |c| c.from_message(event) }
+          .select { |x| x }
+          .each   { |e| Wires::Channel.new(self).fire_and_wait e }
+      end
+      
+      default_events
+    end
+    
+    
     def connect!
       @socket = TCPSocket.open(@server, @port)
       
@@ -24,17 +42,20 @@ module IRC
       
       while @socket.gets =~ /^(?::(.+?) )?(\w+) (.*?)\r\n$/
         Wires::Channel.new(self).fire_and_wait \
-          [:irc_message,*($3.split ' '),prefix:$1,command:$2]
+          [:irc_message,*($3.split ' '),sender:$1,command:$2]
       end
     end
     
-    def command(cmd, *args)
-      @socket.puts("#{cmd.to_s.upcase} #{args.join(' ')}")
+    
+    def send_command(cmd, *args)
+      @socket.puts("#{cmd.to_s.upcase} #{args.join(' ')}\r")
+      puts "<< #{cmd.to_s.upcase} #{args.join(' ')}"
     end
+    
     
     def method_missing(meth, *args)
       @socket ?
-        command(meth, *args) :
+        send_command(meth, *args) :
         super
     end
     
