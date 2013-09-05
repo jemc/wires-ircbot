@@ -10,7 +10,7 @@ on :irc_end_of_motd do |event, bot|
 end
 
 Wires::Hub.run
-IrcBot.new(
+IRC::Bot.new(
   nick:     '|jemc-testdroid|',
   password: 'password',
   server:   'irc.freenode.net',
