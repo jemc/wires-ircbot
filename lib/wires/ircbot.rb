@@ -4,11 +4,8 @@ require 'wires'
 require 'thread'
 require 'socket'
 
-require "#{File.dirname(__FILE__)}/ircbot/events"
+require_relative "ircbot/events"
 
-
-class IrcEvent < Wires::Event; end
-class IrcLineEvent < IrcEvent; end
 
 class IrcBot
   
@@ -23,14 +20,19 @@ class IrcBot
     nick @nick
     user @nick, 0, '*', (@realname or @nick)
     
-    while line = @socket.gets.rstrip
-      Channel(self).fire_and_wait [:irc_line,line:line]
+    while @socket.gets =~ /^(?:(.+?) )?(\w+) (.*?)\r\n$/
+      Wires::Channel.new(self).fire_and_wait \
+        [:irc_message,*($3.split ' '),prefix:$1,command:$2]
     end
   end
-
+  
+  def command(cmd, *args)
+    @socket.puts("#{cmd.to_s.upcase} #{args.join(' ')}")
+  end
+  
   def method_missing(meth, *args)
     @socket ?
-      @socket.puts("#{meth.to_s.upcase} #{args.join(' ')}") :
+      command(meth, *args) :
       super
   end
   
