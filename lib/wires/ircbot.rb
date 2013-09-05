@@ -20,7 +20,7 @@ class IrcBot
     nick @nick
     user @nick, 0, '*', (@realname or @nick)
     
-    while @socket.gets =~ /^(?:(.+?) )?(\w+) (.*?)\r\n$/
+    while @socket.gets =~ /^(?::(.+?) )?(\w+) (.*?)\r\n$/
       Wires::Channel.new(self).fire_and_wait \
         [:irc_message,*($3.split ' '),prefix:$1,command:$2]
     end
