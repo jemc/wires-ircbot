@@ -10,8 +10,9 @@ require_relative "ircbot/events"
 module IRC
   class Bot
     
-    def initialize(**kwargs)
+    def initialize(**kwargs, &block)
       kwargs.each_pair { |k,v| instance_variable_set("@#{k}",v) }
+      instance_eval &block
       init_events
     end
     
