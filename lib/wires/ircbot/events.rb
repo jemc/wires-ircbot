@@ -46,20 +46,20 @@ module IRC
   
   def_event :privmsg do |m|
     (m.command == 'PRIVMSG') and \
-    new user:    m.prefix,
+    new user:   (User.new m.prefix),
         channel: m.args[0],
         text:    m.args[1..-1].join(' ')[1..-1]
   end
   
   def_event :join do |m|
     (m.command == 'JOIN') and \
-    new user:    m.prefix,
+    new user:   (User.new m.prefix),
         channel: m.args[0]
   end
   
   def_event :part do |m|
     (m.command == 'PART') and \
-    new user:    m.prefix,
+    new user:   (User.new m.prefix),
         channel: m.args[0],
         text:    m.args[1..-1].join(' ')[1..-1]
   end
