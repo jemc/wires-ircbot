@@ -4,6 +4,7 @@ require 'wires'
 require 'thread'
 require 'socket'
 
+require_relative "ircbot/user"
 require_relative "ircbot/events"
 require_relative "ircbot/handlers"
 require_relative "ircbot/overrides"
@@ -53,8 +54,8 @@ module IRC
     
     
     def send_command(cmd, *args)
-      cmd = cmd.to_s.upcase+args.join(' ')
-      @socket.puts(cmd+'\r')
+      cmd = [cmd.to_s.upcase, *args].join(' ')
+      @socket.puts(cmd+"\r")
       puts "\033[1m<< #{cmd}\033[22m"
     end
     

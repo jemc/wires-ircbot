@@ -3,7 +3,6 @@ require 'wires/ircbot'
 
 Wires::Hub.run
 
-puts 'whup'
 IRC::Bot.new do
   @nick     = '|jemc-testdroid|'
   @password = 'password'
@@ -12,12 +11,20 @@ IRC::Bot.new do
   
   @channels = ['#wires']
   
-  handle :message do |event|
-    puts event.string
+  handle :message do |e|
+    puts e.string
   end
   
-  handle :privmsg do |event|
-    privmsg event.channel, event.text
+  handle :privmsg do |e|
+    privmsg e.channel, e.text
+  end
+  
+  handle :join do |e|
+    privmsg e.user, "Welcome to #{e.channel}, #{e.user}."
+  end
+  
+  handle :part do |e|
+    privmsg e.channel, "Aw...  I'm going to miss that user."
   end
   
 end.connect!

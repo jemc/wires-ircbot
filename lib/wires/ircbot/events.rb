@@ -51,6 +51,12 @@ module IRC
         text:    m.args[1..-1].join(' ')[1..-1]
   end
   
+  def_event :join do |m|
+    (m.command == 'JOIN') and \
+    new user:    m.prefix,
+        channel: m.args[0]
+  end
+  
   def_event :part do |m|
     (m.command == 'PART') and \
     new user:    m.prefix,
