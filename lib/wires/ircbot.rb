@@ -5,6 +5,7 @@ require 'thread'
 require 'socket'
 
 require_relative "ircbot/events"
+require_relative "ircbot/handlers"
 require_relative "ircbot/overrides"
 
 module IRC
@@ -13,7 +14,7 @@ module IRC
     def initialize(**kwargs, &block)
       kwargs.each_pair { |k,v| instance_variable_set("@#{k}",v) }
       instance_eval &block
-      init_events
+      init_handlers
     end
     
     
@@ -22,7 +23,7 @@ module IRC
     end
     
     
-    def init_events
+    def init_handlers
       handle :message do |event|
         IrcEvent.children
           .map    { |c| c.from_message(event) }
@@ -30,7 +31,7 @@ module IRC
           .each   { |e| Wires::Channel.new(self).fire_and_wait e }
       end
       
-      default_events
+      default_handlers
     end
     
     
@@ -40,16 +41,21 @@ module IRC
       nick @nick
       user @nick, 0, '*', (@realname or @nick)
       
-      while @socket.gets =~ /^(?::(.+?) )?(\w+) (.*?)\r\n$/
+      while (m = @socket.gets.match /^((?::(.+?) )?(\w+) (.*?)\r\n)$/)
         Wires::Channel.new(self).fire_and_wait \
-          [:irc_message,*($3.split ' '),sender:$1,command:$2]
+          [:irc_message,
+            *(m[4].split ' '),
+            string:  m[1].rstrip,
+            prefix:  m[2],
+            command: m[3]]
       end
     end
     
     
     def send_command(cmd, *args)
-      @socket.puts("#{cmd.to_s.upcase} #{args.join(' ')}\r")
-      puts "<< #{cmd.to_s.upcase} #{args.join(' ')}"
+      cmd = cmd.to_s.upcase+args.join(' ')
+      @socket.puts(cmd+'\r')
+      puts "\033[1m<< #{cmd}\033[22m"
     end
     
     

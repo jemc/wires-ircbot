@@ -33,35 +33,29 @@ module IRC
   
   def_event :end_of_motd do |m|
     (m.command == '376') and \
-    new sender: m.sender,
-        target: m.args[0],
-        text:   m.args[1..-1].join(' ')[1..-1]
+    new prefix:  m.prefix,
+        target:  m.args[0],
+        text:    m.args[1..-1].join(' ')[1..-1]
   end
   
   def_event :ping do |m|
     (m.command == 'PING') and \
-    new sender: m.args[0],
-        target:(m.args[1] or m.args[0])
+    new prefix:  m.args[0],
+        target: (m.args[1] or m.args[0])
   end
   
   def_event :privmsg do |m|
     (m.command == 'PRIVMSG') and \
-    new sender: m.sender,
-        target: m.args[0],
-        text:   m.args[1..-1].join(' ')[1..-1]
+    new user:    m.prefix,
+        channel: m.args[0],
+        text:    m.args[1..-1].join(' ')[1..-1]
   end
   
-  
-  class Bot
-    def default_events
-      
-      handle :ping do |e|
-        pong e.target
-      end
-      
-      
-      
-    end
+  def_event :part do |m|
+    (m.command == 'PART') and \
+    new user:    m.prefix,
+        channel: m.args[0],
+        text:    m.args[1..-1].join(' ')[1..-1]
   end
   
 end
