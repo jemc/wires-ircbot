@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage      = 'https://github.com/jemc/wires-ircbot/'
   s.licenses      = "Copyright (c) Joe McIlvain. All rights reserved "
   
-  s.add_dependency('wires')
+  s.add_dependency('wires', '<~ 0.4.0')
   
   s.add_development_dependency('rake')
   s.add_development_dependency('wires-test')
