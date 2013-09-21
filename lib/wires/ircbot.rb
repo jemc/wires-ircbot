@@ -1,5 +1,6 @@
 
 require 'wires'
+include Wires::Convenience
 
 require 'thread'
 require 'socket'
@@ -8,6 +9,7 @@ require_relative "ircbot/user"
 require_relative "ircbot/events"
 require_relative "ircbot/handlers"
 require_relative "ircbot/overrides"
+
 
 module IRC
   class Bot
@@ -19,19 +21,13 @@ module IRC
     end
     
     
-    def handle(event, &block)
-      Wires::Convenience.on ('irc_'+event.to_s), self, &block
-    end
-    
-    
     def init_handlers
-      handle :message do |event|
-        IrcEvent.children
-          .map    { |c| c.from_message(event) }
-          .select { |x| x }
-          .each   { |e| Wires::Channel.new(self).fire_and_wait e }
+      on :message do |m| 
+        m = IRC.parse_message m
+        begin fire_and_wait m 
+        rescue ArgumentError
+        end
       end
-      
       default_handlers
     end
     
@@ -43,12 +39,11 @@ module IRC
       user @nick, 0, '*', (@realname or @nick)
       
       while (m = @socket.gets.match /^((?::(.+?) )?(\w+) (.*?)\r\n)$/)
-        Wires::Channel.new(self).fire_and_wait \
-          [:irc_message,
+        fire_and_wait [message:[
             *(m[4].split ' '),
             string:  m[1].rstrip,
             prefix:  m[2],
-            command: m[3]]
+            command: m[3]]]
       end
     end
     
@@ -62,7 +57,7 @@ module IRC
     
     
     def method_missing(meth, *args)
-      @socket ?
+      @socket and meth!=:to_a ?
         send_command(meth, *args) :
         super
     end
