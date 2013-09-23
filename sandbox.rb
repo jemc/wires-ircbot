@@ -7,7 +7,7 @@ IRC::Bot.new do
   @server   = 'irc.freenode.net'
   @port     = 6667
   
-  @channels = ['#wires','#obelisk']
+  @channels = ['#wires']
   
   on :message, self do |e|
     puts e.string
