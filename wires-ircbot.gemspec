@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name          = 'wires-ircbot'
-  s.version       = '0.1.0'
-  s.date          = '2013-09-22'
+  s.version       = '0.1.1'
+  s.date          = '2013-09-23'
   s.summary       = "wires-ircbot"
   s.description   = "Wires extension gem for creating flexible, dynamic IRC bots."
   s.authors       = ["Joe McIlvain"]
