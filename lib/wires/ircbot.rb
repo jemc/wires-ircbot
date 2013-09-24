@@ -15,6 +15,7 @@ module IRC
   class Bot
     
     def initialize(**kwargs, &block)
+      @rescue_exceptions = true
       kwargs.each_pair { |k,v| instance_variable_set("@#{k}",v) }
       instance_eval &block
       init_handlers
@@ -39,11 +40,17 @@ module IRC
       user @nick, 0, '*', (@realname or @nick)
       
       while (m = @socket.gets.match /^((?::(.+?) )?(\w+) (.*?)\r\n)$/)
-        fire_and_wait [message:[
+        begin
+          fire_and_wait [message:[
             *(m[4].split ' '),
             string:  m[1].rstrip,
             prefix:  m[2],
             command: m[3]]]
+        rescue Exception => ex;
+          raise unless @rescue_exceptions
+          puts ex.backtrace
+          puts "#{ex.message} (#{ex.class})"
+        end
       end
     end
     
