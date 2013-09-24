@@ -9,15 +9,15 @@ IRC::Bot.new do
   
   @channels = ['#wires']
   
-  on :message, self do |e|
+  on :message do |e|
     puts e.string
   end
   
-  on :privmsg, self do |e|
+  on :privmsg do |e|
     privmsg e.channel, e.text
   end
   
-  on :join, self do |e|
+  on :join do |e|
     sleep 1
     privmsg e.channel, case e.user.nick
       when @nick; "Don't worry, guys. I'm back."
@@ -25,7 +25,7 @@ IRC::Bot.new do
       end
   end
   
-  on :part, self do |e|
+  on :part do |e|
     sleep 1
     privmsg e.channel, "Aw...  I'm going to miss that user."
   end
